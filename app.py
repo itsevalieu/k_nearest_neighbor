@@ -9,8 +9,12 @@ def knearestneighbor(trainfile, testfile, outputfile, k):
 
     #create numpy array Yhat(1x20) consisting of all zeros
     y_hat = np.zeros(shape=(1, 20))
+    print(y_hat)
 
     #for each example in Xtest, apply the k-nearest neighhbor method to determine class
+
+    find_distance(Xtrain, Xtest)
+
         # put result of knn method in Yhat
     ## write_outputfile(outputfile)
 
@@ -60,6 +64,10 @@ def read_testfile(testfile):
             x[3][j] = line[3]
             y[0][j] = line[4]
         return x, y
+def find_distance(x_train, x_test):
+    for i in x_train[0]:
+        print(i)
+        # d = [(i) ** 2 + () ** 2 + () ** 2 + () ** 2] ** (1 / 2)
 
 def write_outputfile(outputfile):
     # write to outputfile
