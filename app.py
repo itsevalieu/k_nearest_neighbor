@@ -1,26 +1,48 @@
 import numpy as np
 import csv
+from sklearn.metrics import confusion_matrix
 
-def knearestneighbor(trainfile, testfile, outputfile, k):
+def knearestneighbor(trainfile, testfile, outputfile, k=3):
     print(trainfile, testfile, outputfile, k)
-    Xtrain, Ytrain = read_trainfile(trainfile)
+    with open(outputfile, 'w') as f:
+        Xtrain, Ytrain = read_trainfile(trainfile)
+        Xtest, Ytest = read_testfile(testfile)
 
-    Xtest, Ytest = read_testfile(testfile)
+        #create numpy array Yhat(1x20) consisting of all zeros
+        y_hat = np.zeros(shape=(1, 20))
 
-    #create numpy array Yhat(1x20) consisting of all zeros
-    y_hat = np.zeros(shape=(1, 20))
-    print(y_hat)
+        #for each example in Xtest, apply the k-nearest neighhbor method to determine class
+        for i in range(len(y_hat[0])):
+            d = find_distance(Xtrain, Xtest, i)
+            idx = np.argpartition(d, k)
+            knn = d[idx[0]] + d[idx[1]] + d[idx[2]]
+            yhat_class = populate_yhat(knn)
 
-    #for each example in Xtest, apply the k-nearest neighhbor method to determine class
+            # put result of knn method in Yhat
+            y_hat[0][i] = yhat_class
 
-    find_distance(Xtrain, Xtest)
+        for line, point in enumerate(Ytest[0]):
+            f.write(str(Ytest[0][line]) + "," + str(y_hat[0][line])+ "\n")
 
-        # put result of knn method in Yhat
-    ## write_outputfile(outputfile)
+        # using scikit-learn to find confusion matrix
+        confusionmatrix = confusion_matrix(Ytest[0], y_hat[0])
+        print(confusionmatrix)
+        # receiving index error when trying to use just numpy to find confusionmatrix. Why?
+            # confusionmatrix = np.zeros(shape=(2, 2))
+            # actual = np.array(Ytest[0])
+            # predicted = np.array(y_hat[0])
+            # for a, b in zip(actual, predicted):
+            #     print(a,b)
+            #     confusionmatrix[a][b] += 1
 
-    ## confusionmatrix = [] #should contain 4 values slide for confusion matrix
-    ## return confusionmatrix
-
+    return confusionmatrix
+def populate_yhat(knn):
+    if knn > 1:
+        knn_class = 1
+        return knn_class
+    else:
+        knn_class = 0
+        return knn_class
 def read_trainfile(trainfile):
     #read trainfile
     with open(trainfile, 'r') as iristrain:
@@ -64,15 +86,24 @@ def read_testfile(testfile):
             x[3][j] = line[3]
             y[0][j] = line[4]
         return x, y
-def find_distance(x_train, x_test):
-    for i in x_train[0]:
-        print(i)
-        # d = [(i) ** 2 + () ** 2 + () ** 2 + () ** 2] ** (1 / 2)
+def find_distance(x_train, x_test, test_point=0):
+    # first subtract and ^2 each train array with a single test point, then append to d
+    d = []
+    for i in range(len(x_test)):
+        dist = (x_train[i][:] - x_test[i][test_point])**2
+        d.append(dist)
 
-def write_outputfile(outputfile):
-    # write to outputfile
-    with open(outputfile, 'w'):
-        print(outputfile)
+    # add all points together across lists
+    sum = 0
+    for i, j in enumerate(d):
+        sum += d[i][:]
+
+    # sqrt each sum to find distance for all points, append to distance and return
+    distance = []
+    for m in sum:
+        n = np.sqrt(m)
+        distance.append(n)
+    return distance
 
 
 knearestneighbor('iristrain.csv', 'iristest.csv', 'irisoutput', 3)
